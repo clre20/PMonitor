@@ -32,6 +32,7 @@ public final class PMonitorCommand implements TabExecutor {
 
     private static final List<Sub> SUBS = List.of(
         new Sub("help", "pmonitor.help", "help.help"),
+        new Sub("version", "pmonitor.version", "help.version"),
         new Sub("start", "pmonitor.start", "help.start"),
         new Sub("stop", "pmonitor.stop", "help.stop"),
         new Sub("status", "pmonitor.status", "help.status"),
@@ -86,6 +87,7 @@ public final class PMonitorCommand implements TabExecutor {
         }
         switch (sub) {
             case "help" -> help(sender, label);
+            case "version" -> this.plugin.updateNotifier().showTo(sender);
             case "start" -> start(sender, label, args);
             case "stop" -> stop(sender, label, args);
             case "status" -> status(sender);
@@ -95,7 +97,6 @@ public final class PMonitorCommand implements TabExecutor {
             case "reload" -> {
                 this.plugin.reload();
                 msg().send(sender, "reloaded");
-                this.plugin.updates().sendVersion(sender);
             }
             default -> {
             }
@@ -106,8 +107,7 @@ public final class PMonitorCommand implements TabExecutor {
     // ---------------------------------------------------------------- 子指令
 
     private void help(CommandSender sender, String label) {
-        msg().sendPlain(sender, "help.header");
-        this.plugin.updates().sendVersion(sender);
+        msg().sendPlain(sender, "help.header", "version", this.plugin.getPluginMeta().getVersion());
         if (sender.hasPermission("pmonitor.use")) {
             msg().sendPlain(sender, "help.open", "label", label);
         }
@@ -294,7 +294,9 @@ public final class PMonitorCommand implements TabExecutor {
         if (sender instanceof Player p) {
             PendingDelete pd = this.pendingDeletes.get(p.getUniqueId());
             if (pd == null || !pd.file.equals(e.name()) || pd.expires < System.currentTimeMillis()) {
-                this.pendingDeletes.put(p.getUniqueId(), new PendingDelete(e.name(), System.currentTimeMillis() + 30_000));
+                long now = System.currentTimeMillis();
+                this.pendingDeletes.values().removeIf(d -> d.expires < now);
+                this.pendingDeletes.put(p.getUniqueId(), new PendingDelete(e.name(), now + 30_000));
                 msg().send(sender, "delete-confirm", "file", e.name(), "label", label);
                 return;
             }
@@ -357,9 +359,7 @@ public final class PMonitorCommand implements TabExecutor {
                             names.add(r.playerName());
                         }
                         for (PlayerDataStore.Entry e : this.plugin.playerData().armedOrAuto()) {
-                            if (e.armed) {
-                                names.add(e.name);
-                            }
+                            names.add(e.name);
                         }
                     } else {
                         for (PlayerDataStore.Entry e : this.plugin.playerData().all()) {

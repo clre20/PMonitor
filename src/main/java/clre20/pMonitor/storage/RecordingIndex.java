@@ -1,5 +1,6 @@
 package clre20.pMonitor.storage;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.record.RecordingFile;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -60,7 +61,7 @@ public final class RecordingIndex {
                     }
                 }
             } catch (IOException e) {
-                this.logger.warning("掃描錄製檔失敗：" + e.getMessage());
+                Log.warn("index-scan-failed", "error", e.getMessage());
             }
         }
         this.byName.clear();
@@ -107,7 +108,7 @@ public final class RecordingIndex {
                     o.has("part") ? o.get("part").getAsInt() : 1);
             }
         } catch (Exception e) {
-            this.logger.warning("無法讀取錄製檔 " + zip.getFileName() + "：" + e.getMessage());
+            Log.warn("index-read-failed", "file", zip.getFileName(), "error", e.getMessage());
             return null;
         }
     }

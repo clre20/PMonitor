@@ -1,5 +1,6 @@
 package clre20.pMonitor.ui;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.PMonitor;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -40,7 +41,7 @@ public final class Menus implements Listener {
                 try {
                     menu.render();
                 } catch (Throwable t) {
-                    this.plugin.getLogger().warning("更新介面失敗：" + t.getMessage());
+                    Log.warn("gui-error", "error", String.valueOf(t));
                 }
             }
         }
@@ -77,7 +78,7 @@ public final class Menus implements Listener {
                 try {
                     menu.click(slot);
                 } catch (Throwable t) {
-                    this.plugin.getLogger().warning("處理介面點擊失敗：" + t);
+                    Log.warn("gui-error", "error", String.valueOf(t));
                 }
             }
         });

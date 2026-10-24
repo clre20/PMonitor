@@ -1,5 +1,6 @@
 package clre20.pMonitor.storage;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.PMonitor;
 import clre20.pMonitor.config.PluginConfig;
 import clre20.pMonitor.util.Fmt;
@@ -100,7 +101,7 @@ public final class StorageMonitor {
 
         if (overStop && !this.plugin.recordings().isStorageBlocked()) {
             List<String> stopped = this.plugin.recordings().blockForStorage();
-            String players = stopped.isEmpty() ? "（無）" : String.join("、", stopped);
+            String players = stopped.isEmpty() ? this.plugin.messages().plain("none") : String.join(this.plugin.messages().plain("list-separator"), stopped);
             warnAdmins("storage-stop", "used", Fmt.size(total), "stop", Fmt.size(c.stopSizeBytes), "players", players);
             this.lastWarnMillis = System.currentTimeMillis();
             this.warned = true;
@@ -230,12 +231,12 @@ public final class StorageMonitor {
                         this.plugin.index().remove(info.name());
                         removed++;
                     } catch (IOException e) {
-                        this.plugin.getLogger().warning("無法刪除過期錄製檔 " + info.name() + "：" + e.getMessage());
+                        Log.warn("retention-delete-failed", "file", info.name(), "error", e.getMessage());
                     }
                 }
             }
             if (removed > 0) {
-                this.plugin.getLogger().info("已刪除 " + removed + " 個超過 " + days + " 天的錄製檔");
+                Log.info("retention-deleted", "count", removed, "days", days);
                 requestCheck();
             }
         });

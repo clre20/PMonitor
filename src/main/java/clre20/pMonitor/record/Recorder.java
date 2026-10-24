@@ -1,5 +1,6 @@
 package clre20.pMonitor.record;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.net.ClientState;
 import clre20.pMonitor.nms.Nms;
 import clre20.pMonitor.nms.PacketClasses;
@@ -213,8 +214,8 @@ public final class Recorder {
         }
         long ms = ps.buildNanos / 1_000_000;
         if (ms >= SLOW_SNAPSHOT_MS) {
-            this.logger.info("建立 " + this.playerName + " 的快照共花了 " + ms + " ms，分散在 " + ps.ticks + " 個 tick，單一 tick 最多 "
-                + (ps.maxStepNanos / 1_000_000) + " ms（" + items.size() + " 個項目，其中區塊 " + ps.chunks.size() + " 個）");
+            Log.info("snapshot-slow", "player", this.playerName, "ms", ms, "ticks", ps.ticks,
+                "max", ps.maxStepNanos / 1_000_000, "items", items.size(), "chunks", ps.chunks.size());
         }
     }
 
@@ -603,7 +604,7 @@ public final class Recorder {
                     this.file.finish();
                     future.complete(this.file);
                 } catch (Throwable t) {
-                    this.logger.log(Level.SEVERE, "儲存錄製檔失敗：" + this.file.workDir(), t);
+                    Log.severe("save-failed", t, "file", this.file.workDir().getFileName());
                     future.completeExceptionally(t);
                 }
             });
@@ -634,7 +635,7 @@ public final class Recorder {
                 task.run();
             } catch (Throwable t) {
                 if (this.error.compareAndSet(null, t)) {
-                    this.logger.log(Level.SEVERE, "寫入錄製檔時發生錯誤（" + this.playerName + "）：" + Ref.rootMessage(t), t);
+                    Log.severe("write-failed", t, "player", this.playerName, "error", Ref.rootMessage(t));
                 }
             }
         });

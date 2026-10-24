@@ -15,7 +15,9 @@ import clre20.pMonitor.ui.ChatInput;
 import clre20.pMonitor.ui.HeadCache;
 import clre20.pMonitor.ui.Menus;
 import clre20.pMonitor.update.UpdateChecker;
-import clre20.pMonitor.web.DownloadServer;
+import clre20.pMonitor.update.UpdateNotifier;
+import clre20.pMonitor.util.Log;
+import clre20.pMonitor.web.Downloads;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
@@ -45,7 +47,8 @@ public final class PMonitor extends JavaPlugin implements Listener {
     private StorageMonitor storage;
     private TapManager taps;
     private UpdateChecker updates;
-    private DownloadServer download;
+    private UpdateNotifier updateNotifier;
+    private Downloads download;
     private Menus menus;
     private ChatInput chatInput;
     private HeadCache heads;
@@ -53,16 +56,17 @@ public final class PMonitor extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        Log.init(this);
         loadConfigs();
 
         String mc = Bukkit.getMinecraftVersion();
         if (!TESTED.contains(mc)) {
-            getLogger().warning("目前的 Minecraft 版本 " + mc + " 未經測試（支援 1.21.11、26.1、26.2、26.3），錄製功能可能無法正常運作");
+            Log.warn("untested-version", "version", mc);
         }
 
         this.nmsError = Nms.init();
         if (this.nmsError != null) {
-            getLogger().severe("無法存取伺服器內部，錄製功能已停用：" + this.nmsError);
+            Log.severe("nms-failed", null, "error", this.nmsError);
         }
 
         Path recordingsDir = getDataFolder().toPath().resolve("recordings");
@@ -72,8 +76,9 @@ public final class PMonitor extends JavaPlugin implements Listener {
         this.recordings = new RecordingManager(this, recordingsDir);
         this.storage = new StorageMonitor(this, recordingsDir);
         this.taps = new TapManager(getLogger());
-        this.updates = new UpdateChecker(this);
-        this.download = new DownloadServer(this);
+        this.updates = new UpdateChecker(getPluginMeta().getVersion());
+        this.updateNotifier = new UpdateNotifier(this);
+        this.download = new Downloads(this);
         this.heads = new HeadCache(this);
         this.chatInput = new ChatInput(this);
         this.menus = new Menus(this);
@@ -87,10 +92,10 @@ public final class PMonitor extends JavaPlugin implements Listener {
         List<Path> unfinished = Recovery.findUnfinished(recordingsDir);
         Bukkit.getScheduler().runTaskAsynchronously(this, () -> {
             for (Path work : unfinished) {
-                getLogger().info("發現未正常結束的錄製，正在修復：" + work.getFileName());
+                Log.info("recover-start", "file", work.getFileName());
                 Path zip = Recovery.recover(work, getLogger());
                 if (zip != null) {
-                    getLogger().info("已修復：" + zip.getFileName());
+                    Log.info("recover-done", "file", zip.getFileName());
                 }
             }
             this.index.scan();
@@ -101,6 +106,7 @@ public final class PMonitor extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(this.menus, this);
         getServer().getPluginManager().registerEvents(this.chatInput, this);
+        getServer().getPluginManager().registerEvents(this.updateNotifier, this);
 
         PluginCommand command = getCommand("pmonitor");
         if (command != null) {
@@ -122,11 +128,9 @@ public final class PMonitor extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskTimer(this, this.storage::cleanupOld, 20L * 3600, 20L * 3600);
         Bukkit.getScheduler().runTaskTimer(this, this.menus::refreshOpen, 20L, 20L);
 
-        this.download.applyConfig();
-        if (this.config.updateCheck) {
-            this.updates.checkAsync(result -> getLogger().info(this.updates.consoleText(result)));
-        }
-        getLogger().info("PMonitor " + getPluginMeta().getVersion() + " 已啟用");
+        this.updateNotifier.checkOnStartup();
+        Log.info("enabled", "version", getPluginMeta().getVersion(),
+            "hub", this.messages.plain(Downloads.hubInstalled() ? "console.hub-found" : "console.hub-missing"));
     }
 
     @Override
@@ -142,11 +146,15 @@ public final class PMonitor extends JavaPlugin implements Listener {
             this.taps.stop(Bukkit.getOnlinePlayers());
         }
         if (this.download != null) {
-            this.download.stop();
+            this.download.clear();
+        }
+        if (this.updates != null) {
+            this.updates.shutdown();
         }
         if (this.playerData != null) {
             this.playerData.shutdown();
         }
+        Log.clear();
     }
 
     public void loadConfigs() {
@@ -157,7 +165,7 @@ public final class PMonitor extends JavaPlugin implements Listener {
     /** /cpm reload */
     public void reload() {
         loadConfigs();
-        this.download.applyConfig();
+        this.download.onReload();
         this.storage.onReload();
     }
 
@@ -171,9 +179,6 @@ public final class PMonitor extends JavaPlugin implements Listener {
         }
         this.recordings.onJoin(player);
         this.storage.onJoin(player);
-        if (this.config.updateCheck && this.config.updateNotifyOnJoin && player.hasPermission("pmonitor.update")) {
-            this.updates.notifyOnJoin(player);
-        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
@@ -250,7 +255,11 @@ public final class PMonitor extends JavaPlugin implements Listener {
         return this.updates;
     }
 
-    public DownloadServer download() {
+    public UpdateNotifier updateNotifier() {
+        return this.updateNotifier;
+    }
+
+    public Downloads download() {
         return this.download;
     }
 

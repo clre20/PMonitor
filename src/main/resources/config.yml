@@ -1,55 +1,49 @@
-# PMonitor 設定檔
-# 修改後執行 /cpm reload 生效
-# config-version 由插件管理，請勿修改
-config-version: 1
+# PMonitor 設定檔（修改後執行 /cpm reload）
+# 缺少的項目會在啟動與重載時自動補上；config-version 請勿修改
+config-version: 2
 
 # 訊息前綴（支援 & 顏色碼）
 prefix: "&8[&bPMonitor&8] &r"
 
 update-checker:
-  # 伺服器啟動、/cpm help、/cpm reload 時檢查 GitHub 是否有新版本（只提示，不會自動下載）
-  enabled: true
-  # 有 pmonitor.update 權限的玩家進服時提示新版本
+  # 啟動時在後台檢查 GitHub 新版本（只提示，不下載）
+  check-on-startup: true
+  # 有新版本時，擁有 pmonitor.version 權限的人登入 3 秒後收到提醒
   notify-on-join: true
 
 recording:
-  # 開始與停止錄製時是否通知被錄的玩家
+  # 開始／停止錄製時通知被錄的玩家
   notify-player: false
-  # 單一檔案最長錄製時間（分鐘），超過會自動切成新檔；0 = 不限制
+  # 單檔最長時間（分鐘），超過自動切檔；0 = 不限
   max-duration-minutes: 120
-  # 單一檔案最大容量（MB，以未壓縮大小計算，不含開頭快照），超過會自動切成新檔（每段至少 1 分鐘）；0 = 不限制
+  # 單檔最大容量（MB，未壓縮、不含開頭快照），超過自動切檔（每段至少 1 分鐘）；0 = 不限
   max-file-size-mb: 1024
-  # 記錄玩家自己放置方塊的音效與破壞方塊的粒子（伺服器原本不會送給本人）
+  # 補上玩家自己放置方塊的音效與破壞方塊的粒子（伺服器原本不送給本人）
   record-own-block-effects: true
 
 storage:
-  # 錄製檔保留天數，超過自動刪除；0 = 永久保留
+  # 保留天數，超過自動刪除；0 = 永久
   retention-days: 30
-  # 錄製檔總容量超過此值（GB）時提醒管理員，照常錄製；0 = 不提醒
+  # 總容量超過此值（GB）提醒管理員，照常錄製；0 = 不提醒
   warn-size-gb: 5
-  # 錄製檔總容量超過此值（GB）時，所有錄製會正確存檔後停止，之後不能開始新錄製；
-  # 容量降回此值以下時，會自動恢復錄製被停止的玩家；0 = 不限制
+  # 總容量超過此值（GB）時，所有錄製存檔後停止；降回以下時自動恢復；0 = 不限
   stop-size-gb: 10
-  # OP 等級達到此值的線上玩家才會收到容量提醒（依 ops.json 的 level）
+  # 收到容量提醒的 OP 等級（依 ops.json）
   warn-op-level: 2
-  # 容量超過提醒值時，每隔幾分鐘提醒一次
+  # 超過提醒值時，每隔幾分鐘提醒一次
   warn-interval-minutes: 10
 
 download:
-  # 透過網址下載錄製檔；預設關閉，請直接到伺服器的 plugins/PMonitor/recordings 取檔
+  # 透過網址下載錄製檔（需要安裝 HttpHub，網址與端口由 HttpHub 決定）
+  # 關閉時請到 plugins/PMonitor/recordings 取檔
   enabled: false
-  # 監聽位址與連接埠
-  host: 0.0.0.0
-  port: 52012
-  # 對外網址（例如 https://mc.example.com:52012），留空則使用 http://<伺服器 IP>:<port>
-  public-url: ""
   # 下載連結有效時間（分鐘）
   link-expire-minutes: 10
 
 chat-input:
-  # 聊天室輸入的逾時秒數
+  # 聊天室輸入逾時（秒）
   timeout: 60
-  # 輸入這個字取消並返回介面
+  # 輸入這個字取消
   cancel-word: "取消"
 
 sounds:

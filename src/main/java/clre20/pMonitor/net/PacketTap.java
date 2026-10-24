@@ -1,5 +1,6 @@
 package clre20.pMonitor.net;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.nms.Nms;
 import clre20.pMonitor.nms.Ref;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,7 +40,7 @@ public final class PacketTap extends ChannelOutboundHandlerAdapter {
             } catch (Throwable t) {
                 if (!this.warned) {
                     this.warned = true;
-                    this.logger.warning("處理送往玩家的封包時發生錯誤（" + msg.getClass().getSimpleName() + "）：" + Ref.rootMessage(t));
+                    Log.warn("packet-error", "type", msg.getClass().getSimpleName(), "error", Ref.rootMessage(t));
                 }
             }
         }

@@ -1,5 +1,6 @@
 package clre20.pMonitor.net;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.nms.Nms;
 import clre20.pMonitor.nms.Ref;
 import io.netty.channel.Channel;
@@ -56,7 +57,7 @@ public final class TapManager {
             Ref.method(holder, "addListener", Key.class, listenerType).invoke(null, KEY, listener);
             this.listenerRegistered = true;
         } catch (Throwable t) {
-            this.logger.warning("無法註冊連線監聽器，只能在玩家進服後才開始攔截：" + Ref.rootMessage(t));
+            Log.warn("tap-listener-failed", "error", Ref.rootMessage(t));
         }
     }
 
@@ -115,7 +116,7 @@ public final class TapManager {
             this.states.put(player.getUniqueId(), state);
             return state;
         } catch (Throwable t) {
-            this.logger.warning("無法攔截 " + player.getName() + " 的封包：" + Ref.rootMessage(t));
+            Log.warn("tap-failed", "player", player.getName(), "error", Ref.rootMessage(t));
             return null;
         }
     }

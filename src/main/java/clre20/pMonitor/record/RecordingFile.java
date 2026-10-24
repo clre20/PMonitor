@@ -1,5 +1,6 @@
 package clre20.pMonitor.record;
 
+import clre20.pMonitor.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -111,7 +112,9 @@ public final class RecordingFile {
     /** Flashback 回放清單中顯示的名稱。 */
     public String displayName() {
         String time = DISPLAY_TIME.format(Instant.ofEpochMilli(this.createdMillis).atZone(ZoneId.systemDefault()));
-        return this.playerName + " " + time + (this.part > 1 ? " (第" + this.part + "段)" : "");
+        return this.part > 1
+            ? Log.message("replay-name-part", "{player} {time} ({part})", "player", this.playerName, "time", time, "part", this.part)
+            : Log.message("replay-name", "{player} {time}", "player", this.playerName, "time", time);
     }
 
     /** 寫入 pmonitor.json（錄製資訊，Flashback 會忽略這個檔案）。 */

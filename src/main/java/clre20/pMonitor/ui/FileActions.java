@@ -2,6 +2,8 @@ package clre20.pMonitor.ui;
 
 import clre20.pMonitor.PMonitor;
 import clre20.pMonitor.config.Messages;
+import clre20.pMonitor.util.Log;
+import clre20.pMonitor.web.Downloads;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
@@ -35,23 +37,24 @@ public final class FileActions {
 
     public static void sendDownload(PMonitor plugin, CommandSender sender, FileEntry e) {
         Messages m = plugin.messages();
-        if (!plugin.config().downloadEnabled) {
-            m.send(sender, "download-disabled");
+        Downloads.Link link = plugin.download().createLink(e.path(), sender);
+        if (link.status() != Downloads.Status.OK) {
+            switch (link.status()) {
+                case NO_HUB -> m.send(sender, "download-no-hub");
+                case NOT_RUNNING -> m.send(sender, "download-not-running");
+                case NO_ADDRESS -> m.send(sender, "download-no-address");
+                default -> m.send(sender, "download-disabled");
+            }
             m.send(sender, "download-path", "path", displayPath(e.path()));
             return;
         }
-        String url = plugin.download().createLink(e.path());
-        if (url == null) {
-            m.send(sender, "download-not-running");
-            m.send(sender, "download-path", "path", displayPath(e.path()));
-            return;
-        }
+        String url = link.url();
         m.send(sender, "download-link", "minutes", plugin.config().downloadExpireMinutes, "file", e.name());
         if (sender instanceof Player) {
-            Component link = m.component("download-click", "file", e.name())
+            Component c = m.component("download-click", "file", e.name())
                 .clickEvent(ClickEvent.openUrl(url))
                 .hoverEvent(HoverEvent.showText(Component.text(url)));
-            sender.sendMessage(link);
+            sender.sendMessage(c);
         } else {
             sender.sendMessage(url);
         }
@@ -68,7 +71,7 @@ public final class FileActions {
             plugin.index().remove(e.name());
             plugin.storage().requestCheck();
             m.send(sender, "deleted", "file", e.name());
-            plugin.getLogger().info(sender.getName() + " 刪除了錄製檔 " + e.name());
+            Log.info("file-deleted", "player", sender.getName(), "file", e.name());
             return true;
         } catch (IOException ex) {
             m.send(sender, "delete-failed", "file", e.name(), "error", ex.getMessage());

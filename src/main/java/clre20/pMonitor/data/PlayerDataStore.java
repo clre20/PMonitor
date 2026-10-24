@@ -1,5 +1,6 @@
 package clre20.pMonitor.data;
 
+import clre20.pMonitor.util.Log;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -113,7 +114,7 @@ public final class PlayerDataStore {
             }
             y.save(new File(this.dir, uuid + ".yml"));
         } catch (IOException ex) {
-            this.plugin.getLogger().warning("儲存玩家資料失敗：" + ex.getMessage());
+            Log.warn("playerdata-save-failed", "error", ex.getMessage());
         }
     }
 

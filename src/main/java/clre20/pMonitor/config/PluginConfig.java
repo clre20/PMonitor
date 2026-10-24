@@ -11,7 +11,7 @@ import java.util.Locale;
 public final class PluginConfig {
 
     public final String prefix;
-    public final boolean updateCheck;
+    public final boolean updateCheckOnStartup;
     public final boolean updateNotifyOnJoin;
     public final boolean notifyPlayer;
     public final int maxDurationMinutes;
@@ -23,9 +23,6 @@ public final class PluginConfig {
     public final int warnOpLevel;
     public final int warnIntervalMinutes;
     public final boolean downloadEnabled;
-    public final String downloadHost;
-    public final int downloadPort;
-    public final String downloadPublicUrl;
     public final int downloadExpireMinutes;
     public final int inputTimeout;
     public final String cancelWord;
@@ -36,7 +33,7 @@ public final class PluginConfig {
 
     public PluginConfig(YamlConfiguration c) {
         this.prefix = c.getString("prefix", "&8[&bPMonitor&8] &r");
-        this.updateCheck = c.getBoolean("update-checker.enabled", true);
+        this.updateCheckOnStartup = c.getBoolean("update-checker.check-on-startup", true);
         this.updateNotifyOnJoin = c.getBoolean("update-checker.notify-on-join", true);
         this.notifyPlayer = c.getBoolean("recording.notify-player", false);
         this.maxDurationMinutes = Math.max(0, c.getInt("recording.max-duration-minutes", 120));
@@ -48,12 +45,10 @@ public final class PluginConfig {
         this.warnOpLevel = c.getInt("storage.warn-op-level", 2);
         this.warnIntervalMinutes = Math.max(1, c.getInt("storage.warn-interval-minutes", 10));
         this.downloadEnabled = c.getBoolean("download.enabled", false);
-        this.downloadHost = c.getString("download.host", "0.0.0.0");
-        this.downloadPort = c.getInt("download.port", 52012);
-        this.downloadPublicUrl = c.getString("download.public-url", "");
-        this.downloadExpireMinutes = Math.max(1, c.getInt("download.link-expire-minutes", 10));
+        this.downloadExpireMinutes = Math.min(1440, Math.max(1, c.getInt("download.link-expire-minutes", 10)));
         this.inputTimeout = Math.max(5, c.getInt("chat-input.timeout", 60));
-        this.cancelWord = c.getString("chat-input.cancel-word", "取消");
+        String cancel = c.getString("chat-input.cancel-word", "取消");
+        this.cancelWord = cancel == null || cancel.isBlank() ? "取消" : cancel.trim();
         this.soundsEnabled = c.getBoolean("sounds.enabled", true);
         this.soundClick = sound(c.getString("sounds.click"), "ui.button.click");
         this.soundSuccess = sound(c.getString("sounds.success"), "entity.player.levelup");

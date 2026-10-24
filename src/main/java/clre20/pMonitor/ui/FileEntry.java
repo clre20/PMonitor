@@ -65,7 +65,7 @@ public record FileEntry(String name, UUID uuid, String player, long start, long 
     }
 
     public String statusText(Messages m) {
-        return m.raw("status." + this.status.name().toLowerCase());
+        return m.raw("status." + this.status.name().toLowerCase(java.util.Locale.ROOT));
     }
 
     public Object[] placeholders(Messages m) {

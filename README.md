@@ -38,14 +38,12 @@ PMonitor 在伺服器端錄下指定玩家收到的所有畫面資料，存成 [
 - 存檔、壓縮都在背景執行緒進行
 
 **相容性**
-- 一個 jar 支援 Paper 1.21.11、26.1、26.2、26.3
-- 已測試：ViaVersion／ViaBackwards、Geyser／Floodgate（基岩版玩家）、Velocity、Multiverse-Core、PacketEvents、Paper 反礦透視
-- 不需要任何前置插件
+- 不需要任何前置插件，下載功能需要另外安裝 [HttpHub](https://github.com/clre20/HttpHub)（所有插件共用一個 HTTP 端口）
 
 **其他**
-- 下載連結（預設關閉）：開啟後可用 `/cpm download` 取得下載網址（預設 10 分鐘內有效）
-- 啟動、`/cpm help`、`/cpm reload` 時自動檢查 GitHub 新版本（只提示，不自動下載）
-- 所有訊息、介面文字都可在 `messages.yml` 修改；設定檔更新時自動保留原本的值並備份
+- 下載連結（預設關閉）：透過 HttpHub 的端口提供 `/pmonitor/d/...` 下載網址，只發給有權限的管理員，預設 10 分鐘內有效
+- 啟動時在背景檢查 GitHub 新版本，`/cpm version` 隨時查看；有新版時管理員登入 3 秒後收到提醒（只提示，不自動下載）
+- 所有訊息、介面文字、主控台文字都在 `messages.yml`；設定檔缺少的項目會在啟動與重載時自動補上，保留原本的值
 
 ### 指令與權限
 
@@ -54,20 +52,21 @@ PMonitor 在伺服器端錄下指定玩家收到的所有畫面資料，存成 [
 | 指令 | 說明 | 權限 |
 |---|---|---|
 | `/cpm` | 開啟管理介面 | `pmonitor.use` |
-| `/cpm help` | 版本、檢查更新、指令說明 | `pmonitor.help` |
+| `/cpm help` | 指令說明 | `pmonitor.help` |
+| `/cpm version` | 版本與檢查更新 | `pmonitor.version` |
 | `/cpm start <玩家>` | 開始錄製；玩家離線時改為下次進服錄製 | `pmonitor.start` |
 | `/cpm stop <玩家>` | 停止錄製並存檔；沒在錄時取消待命或關閉自動錄製 | `pmonitor.stop` |
 | `/cpm status` | 錄製中與待命的玩家、目前容量 | `pmonitor.status` |
 | `/cpm list [玩家]` | 錄製檔列表 | `pmonitor.list` |
-| `/cpm download <檔名>` | 取得下載連結（需在設定中開啟） | `pmonitor.download` |
+| `/cpm download <檔名>` | 取得下載連結（需開啟下載並安裝 HttpHub） | `pmonitor.download` |
 | `/cpm delete <檔名>` | 刪除錄製檔（玩家需在 30 秒內再輸入一次確認） | `pmonitor.delete` |
-| `/cpm reload` | 重新載入設定並檢查更新 | `pmonitor.reload` |
+| `/cpm reload` | 重新載入設定 | `pmonitor.reload` |
 
 | 其他權限 | 說明 |
 |---|---|
 | `pmonitor.admin` | 以上全部權限 |
 | `pmonitor.status` | 同時接收錄製相關通知（開始失敗、自動分段等） |
-| `pmonitor.update` | 進服時收到新版本通知 |
+| `pmonitor.version` | 有新版本時，登入 3 秒後收到提醒 |
 
 ### 使用方式
 
@@ -87,7 +86,7 @@ PMonitor 在伺服器端錄下指定玩家收到的所有畫面資料，存成 [
 4. 啟動遊戲 → 標題畫面的 Flashback 按鈕 → 選擇回放
 5. 自由飛行、調整速度、設定鏡頭關鍵幀，用 Flashback 的匯出功能輸出 mp4
 
-### 設定
+### 設定（config.yml）
 
 | 設定 | 預設 | 說明 |
 |---|---|---|
@@ -98,8 +97,10 @@ PMonitor 在伺服器端錄下指定玩家收到的所有畫面資料，存成 [
 | `storage.stop-size-gb` | `10` | 總容量強停值 |
 | `storage.retention-days` | `30` | 保留天數 |
 | `storage.warn-op-level` | `2` | 收到容量提醒的 OP 等級 |
-| `download.enabled` | `false` | 是否開啟下載連結 |
-| `update-checker.enabled` | `true` | 是否檢查更新 |
+| `download.enabled` | `false` | 是否開啟下載連結（需要 HttpHub） |
+| `download.link-expire-minutes` | `10` | 下載連結有效時間 |
+| `update-checker.check-on-startup` | `true` | 啟動時檢查更新 |
+| `update-checker.notify-on-join` | `true` | 有新版時提醒登入的管理員 |
 
 數值設 `0` 代表不限制。修改後執行 `/cpm reload`。
 
@@ -111,8 +112,11 @@ PMonitor 在伺服器端錄下指定玩家收到的所有畫面資料，存成 [
 - 被錄玩家自己的腳步聲、吃東西等音效不會出現在回放中（伺服器不會送給本人）
 - 伺服器 TPS 低於 20 時，回放長度會比實際時間短
 - 基岩版玩家在回放中顯示預設皮膚
+- Flashback 的自由鏡頭只會在換維度時自動移到玩家身上；要讓鏡頭跟著玩家穿過同世界的傳送（例如 RTP），請在 Flashback 的玩家列表按「觀戰（Spectate）」
 
 ---
+
+## English
 
 PMonitor records, on the server side, everything a chosen player receives and saves it as a [Flashback](https://modrinth.com/mod/flashback) replay. The recorded player needs nothing installed and is not notified by default. Drop the file into Flashback on your own PC to watch from any angle with a free camera, play in slow motion, or export a video.
 
@@ -154,14 +158,13 @@ Great for investigating cheaters, reconstructing disputes, and capturing events 
 - Saving and compression run on background threads
 
 **Compatibility**
-- One jar for Paper 1.21.11, 26.1, 26.2 and 26.3
 - Tested with ViaVersion/ViaBackwards, Geyser/Floodgate (Bedrock players), Velocity, Multiverse-Core, PacketEvents and Paper anti-xray
-- No dependencies
+- No dependencies; downloads require [HttpHub](https://github.com/clre20/HttpHub) (one shared HTTP port for all plugins)
 
 **More**
-- Download links (off by default): `/cpm download` gives a URL valid for 10 minutes by default
-- Checks GitHub for new versions on startup, `/cpm help` and `/cpm reload` (notification only)
-- All messages and GUI text are editable in `messages.yml`; config updates keep your values and make a backup
+- Download links (off by default): served on HttpHub's port at `/pmonitor/d/...`, issued only to admins, valid for 10 minutes by default
+- Checks GitHub for new versions in the background on startup; `/cpm version` any time; admins get a reminder 3 seconds after joining when an update exists (notification only)
+- All messages, GUI text and console text live in `messages.yml`; missing config keys are filled in on startup and reload, keeping your values
 
 ### Commands & Permissions
 
@@ -170,20 +173,21 @@ Main command `/pmonitor`, alias `/cpm`. All permissions default to OP only.
 | Command | Description | Permission |
 |---|---|---|
 | `/cpm` | Open the manager GUI | `pmonitor.use` |
-| `/cpm help` | Version, update check, command list | `pmonitor.help` |
+| `/cpm help` | Command list | `pmonitor.help` |
+| `/cpm version` | Version and update check | `pmonitor.version` |
 | `/cpm start <player>` | Start recording; for offline players, record on next join | `pmonitor.start` |
 | `/cpm stop <player>` | Stop and save; if not recording, cancel the pending or auto recording | `pmonitor.stop` |
 | `/cpm status` | Players being recorded or pending, current storage usage | `pmonitor.status` |
 | `/cpm list [player]` | List recordings | `pmonitor.list` |
-| `/cpm download <file>` | Get a download link (must be enabled in config) | `pmonitor.download` |
+| `/cpm download <file>` | Get a download link (downloads enabled + HttpHub installed) | `pmonitor.download` |
 | `/cpm delete <file>` | Delete a recording (players must repeat the command within 30 s to confirm) | `pmonitor.delete` |
-| `/cpm reload` | Reload config and check for updates | `pmonitor.reload` |
+| `/cpm reload` | Reload config | `pmonitor.reload` |
 
 | Other permissions | Description |
 |---|---|
 | `pmonitor.admin` | All of the above |
 | `pmonitor.status` | Also receive recording notifications (start failures, auto-split, etc.) |
-| `pmonitor.update` | Get notified of new versions on join |
+| `pmonitor.version` | Get an update reminder 3 seconds after joining |
 
 ### How to use
 
@@ -214,8 +218,10 @@ Main command `/pmonitor`, alias `/cpm`. All permissions default to OP only.
 | `storage.stop-size-gb` | `10` | Total storage stop size |
 | `storage.retention-days` | `30` | Days to keep recordings |
 | `storage.warn-op-level` | `2` | OP level that receives storage warnings |
-| `download.enabled` | `false` | Enable download links |
-| `update-checker.enabled` | `true` | Check for updates |
+| `download.enabled` | `false` | Enable download links (requires HttpHub) |
+| `download.link-expire-minutes` | `10` | How long a download link stays valid |
+| `update-checker.check-on-startup` | `true` | Check for updates on startup |
+| `update-checker.notify-on-join` | `true` | Remind admins on join when an update exists |
 
 `0` means unlimited. Run `/cpm reload` after editing.
 
@@ -227,3 +233,4 @@ Main command `/pmonitor`, alias `/cpm`. All permissions default to OP only.
 - The recorded player's own footsteps and eating sounds are not in the replay (the server never sends them to that player)
 - If the server runs below 20 TPS, the replay is shorter than real time
 - Bedrock players appear with the default skin in replays
+- Flashback's free camera only jumps to the player on dimension changes; to keep the camera on the player through same-world teleports (e.g. RTP), press "Spectate" in Flashback's player list

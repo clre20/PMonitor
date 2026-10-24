@@ -6,6 +6,7 @@ version: '${version}'
 main: clre20.pMonitor.PMonitor
 api-version: '1.21.11'
 load: POSTWORLD
+softdepend: [ HttpHub ]
 
 authors: [ Clre20 ]
 website: https://github.com/clre20/PMonitor
@@ -13,16 +14,17 @@ website: https://github.com/clre20/PMonitor
 commands:
   pmonitor:
     description: PMonitor 錄製管理
-    usage: /<command> [help|start|stop|status|list|download|delete|reload]
+    usage: /<command> [help|version|start|stop|status|list|download|delete|reload]
     aliases: [ cpm ]
 
 permissions:
   pmonitor.admin:
-    description: PMonitor 全部權限
+    description: 全部權限
     default: op
     children:
       pmonitor.use: true
       pmonitor.help: true
+      pmonitor.version: true
       pmonitor.start: true
       pmonitor.stop: true
       pmonitor.status: true
@@ -30,34 +32,33 @@ permissions:
       pmonitor.download: true
       pmonitor.delete: true
       pmonitor.reload: true
-      pmonitor.update: true
   pmonitor.use:
-    description: 開啟主介面（/cpm）
+    description: 開啟介面
     default: op
   pmonitor.help:
-    description: /cpm help
+    description: 指令說明
+    default: op
+  pmonitor.version:
+    description: 查看版本與檢查更新；有新版時登入會收到提醒
     default: op
   pmonitor.start:
-    description: 開始錄製、設定下次進服錄製與每次進服自動錄製
+    description: 開始錄製、設定待命與自動錄製
     default: op
   pmonitor.stop:
-    description: 停止錄製或取消待命
+    description: 停止錄製、取消待命
     default: op
   pmonitor.status:
-    description: 查看錄製狀態，並接收錄製相關通知
+    description: 查看錄製狀態並接收錄製通知
     default: op
   pmonitor.list:
-    description: 查看錄製檔列表
+    description: 查看錄製檔
     default: op
   pmonitor.download:
-    description: 取得錄製檔下載連結
+    description: 取得下載連結
     default: op
   pmonitor.delete:
     description: 刪除錄製檔
     default: op
   pmonitor.reload:
     description: 重新載入設定
-    default: op
-  pmonitor.update:
-    description: 收到新版本通知
     default: op

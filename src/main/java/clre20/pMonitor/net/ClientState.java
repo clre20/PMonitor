@@ -1,5 +1,6 @@
 package clre20.pMonitor.net;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.nms.Nms;
 import clre20.pMonitor.nms.PacketClasses;
 import clre20.pMonitor.nms.PacketFields;
@@ -146,7 +147,7 @@ public final class ClientState {
         } catch (Throwable t) {
             if (!this.warned) {
                 this.warned = true;
-                this.logger.warning("更新玩家狀態快取時發生錯誤（" + c.getSimpleName() + "）：" + Ref.rootMessage(t));
+                Log.warn("state-error", "type", c.getSimpleName(), "error", Ref.rootMessage(t));
             }
         }
         Recorder r = this.recorder;

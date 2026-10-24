@@ -14,8 +14,18 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
 
-/** 箱子介面的基底：全部左鍵操作，關閉（Esc）回到上一層。 */
+/**
+ * 箱子介面的基底：全部左鍵操作，關閉（Esc）回到上一層。
+ * <p>
+ * 插件簽署：所有 PMonitor 介面的 InventoryHolder 都是這個類別，其他插件可用
+ * {@code inventory.getHolder(false) instanceof Menu} 或 {@link #owningPlugin()} 辨識來源。
+ */
 public abstract class Menu implements InventoryHolder {
+
+    /** 這個介面所屬的插件（插件簽署）。 */
+    public final org.bukkit.plugin.Plugin owningPlugin() {
+        return this.plugin;
+    }
 
     protected final PMonitor plugin;
     protected final Player viewer;

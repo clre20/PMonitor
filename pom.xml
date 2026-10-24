@@ -6,7 +6,7 @@
 
     <groupId>clre20</groupId>
     <artifactId>PMonitor</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
 
     <name>PMonitor</name>
@@ -77,6 +77,10 @@
             <id>papermc-repo</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>jitpack</id>
+            <url>https://jitpack.io</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -91,6 +95,13 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport</artifactId>
             <version>4.2.7.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 共用 HTTP 端口（下載錄製檔用；選用，softdepend） -->
+        <dependency>
+            <groupId>com.github.clre20</groupId>
+            <artifactId>HttpHub</artifactId>
+            <version>v1.0.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

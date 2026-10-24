@@ -1,5 +1,6 @@
 package clre20.pMonitor.record;
 
+import clre20.pMonitor.util.Log;
 import clre20.pMonitor.PMonitor;
 import clre20.pMonitor.data.PlayerDataStore;
 import clre20.pMonitor.net.ClientState;
@@ -174,10 +175,10 @@ public final class RecordingManager {
             if (p.part == 1 && this.plugin.config().notifyPlayer) {
                 this.plugin.messages().send(player, "notify-start");
             }
-            this.plugin.getLogger().info("開始錄製 " + player.getName() + "（" + file.baseName() + "）");
+            Log.info("record-start", "player", player.getName(), "file", file.baseName());
             return true;
         } catch (Throwable t) {
-            this.plugin.getLogger().log(Level.SEVERE, "無法開始錄製 " + player.getName() + "：" + Ref.rootMessage(t), t);
+            Log.severe("record-start-failed", t, "player", player.getName(), "error", Ref.rootMessage(t));
             this.plugin.notifyAdmins("record-error", "player", player.getName(), "error", Ref.rootMessage(t));
             return false;
         }
@@ -230,19 +231,8 @@ public final class RecordingManager {
                 this.plugin.messages().send(p, "notify-stop");
             }
         }
-        this.plugin.getLogger().info("停止錄製 " + r.playerName() + "（" + reasonText(reason) + "）");
+        Log.info("record-stop", "player", r.playerName(), "reason", Log.text("reason." + reason.name().toLowerCase(java.util.Locale.ROOT)));
         return true;
-    }
-
-    private static String reasonText(Recorder.StopReason reason) {
-        return switch (reason) {
-            case MANUAL -> "手動停止";
-            case QUIT -> "玩家離線";
-            case SHUTDOWN -> "伺服器關閉";
-            case SPLIT -> "自動分段";
-            case STORAGE -> "容量達上限";
-            case ERROR -> "發生錯誤";
-        };
     }
 
     // ================================================================ 事件
@@ -286,7 +276,7 @@ public final class RecordingManager {
                 }
                 if (!tryStartPending(p) && this.tickCounter > en.getValue().deadline) {
                     this.pending.remove(en.getKey());
-                    this.plugin.getLogger().warning(p.getName() + " 一直沒有進入遊戲，取消錄製");
+                    Log.warn("record-wait-timeout", "player", p.getName());
                 }
             }
         }
@@ -305,13 +295,13 @@ public final class RecordingManager {
             try {
                 ok = r.tick(p);
             } catch (Throwable t) {
-                this.plugin.getLogger().log(Level.SEVERE, "錄製 " + p.getName() + " 時發生錯誤", t);
+                Log.severe("record-tick-failed", t, "player", p.getName());
                 ok = false;
             }
             if (!ok) {
                 Throwable err = r.error();
                 stop(r.uuid(), Recorder.StopReason.ERROR, null);
-                this.plugin.notifyAdmins("record-error", "player", p.getName(), "error", err == null ? "未知錯誤" : Ref.rootMessage(err));
+                this.plugin.notifyAdmins("record-error", "player", p.getName(), "error", err == null ? this.plugin.messages().plain("unknown-error") : Ref.rootMessage(err));
                 continue;
             }
             // 依容量分段時扣掉開頭快照（新檔一開始就要寫一份完整快照），並且每段至少錄 1 分鐘，
@@ -385,7 +375,7 @@ public final class RecordingManager {
         this.pending.clear();
         List<Recorder> recorders = new ArrayList<>(this.active.values());
         if (!recorders.isEmpty()) {
-            this.plugin.getLogger().info("正在儲存 " + recorders.size() + " 個錄製檔，完成前不會關閉伺服器…");
+            Log.info("shutdown-saving", "count", recorders.size());
         }
         for (Recorder r : recorders) {
             stop(r.uuid(), Recorder.StopReason.SHUTDOWN, null);
@@ -401,14 +391,14 @@ public final class RecordingManager {
                     f.get(10, TimeUnit.SECONDS);
                     break;
                 } catch (java.util.concurrent.TimeoutException e) {
-                    this.plugin.getLogger().info("錄製檔仍在儲存中…（已等待 " + (System.currentTimeMillis() - start) / 1000 + " 秒）");
+                    Log.info("shutdown-waiting", "seconds", (System.currentTimeMillis() - start) / 1000);
                 } catch (Exception e) {
                     break;
                 }
             }
         }
         if (!futures.isEmpty()) {
-            this.plugin.getLogger().info("所有錄製檔已儲存完成");
+            Log.info("shutdown-done");
         }
     }
 

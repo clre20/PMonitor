@@ -36,10 +36,12 @@ public final class ChatInput implements Listener {
     public void request(Player player, String promptKey, Consumer<String> onInput, Runnable onCancel) {
         cancel(player);
         int seconds = this.plugin.config().inputTimeout;
+        java.util.UUID id = player.getUniqueId();
         BukkitTask timeout = Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-            Request r = this.requests.remove(player.getUniqueId());
-            if (r != null && player.isOnline()) {
-                this.plugin.messages().send(player, "input-timeout");
+            Request r = this.requests.remove(id);
+            Player p = Bukkit.getPlayer(id);
+            if (r != null && p != null) {
+                this.plugin.messages().send(p, "input-timeout");
                 r.onCancel.run();
             }
         }, seconds * 20L);
@@ -62,7 +64,7 @@ public final class ChatInput implements Listener {
             return;
         }
         event.setCancelled(true);
-        String text = PlainTextComponentSerializer.plainText().serialize(event.message()).trim();
+        String text = clean(PlainTextComponentSerializer.plainText().serialize(event.message()));
         Bukkit.getScheduler().runTask(this.plugin, () -> {
             Request r = this.requests.remove(player.getUniqueId());
             if (r == null || !player.isOnline()) {
@@ -77,4 +79,18 @@ public final class ChatInput implements Listener {
             }
         });
     }
+
+    /** 輸入文字只保留一般字元：去掉顏色碼符號與控制字元，最長 {@value #MAX_INPUT} 字。 */
+    static String clean(String raw) {
+        StringBuilder sb = new StringBuilder(Math.min(raw.length(), MAX_INPUT));
+        for (int i = 0; i < raw.length() && sb.length() < MAX_INPUT; i++) {
+            char c = raw.charAt(i);
+            if (c >= 0x20 && c != 0x7f && c != '&' && c != '\u00a7') {
+                sb.append(c);
+            }
+        }
+        return sb.toString().trim();
+    }
+
+    private static final int MAX_INPUT = 32;
 }

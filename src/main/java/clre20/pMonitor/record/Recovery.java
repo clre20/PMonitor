@@ -1,5 +1,6 @@
 package clre20.pMonitor.record;
 
+import clre20.pMonitor.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -60,7 +61,7 @@ public final class Recovery {
         try {
             Path infoPath = workDir.resolve(RecordingFile.INFO_ENTRY);
             if (!Files.exists(infoPath)) {
-                logger.warning("無法修復 " + workDir + "：缺少錄製資訊，已略過");
+                Log.warn("recover-no-info", "file", workDir.getFileName());
                 return null;
             }
             JsonObject info = JsonParser.parseString(Files.readString(infoPath, StandardCharsets.UTF_8)).getAsJsonObject();
@@ -98,7 +99,7 @@ public final class Recovery {
             }
 
             if (chunks.size() == 0 || total == 0) {
-                logger.warning("錄製檔 " + workDir.getFileName() + " 沒有可用的內容，已刪除");
+                Log.warn("recover-empty", "file", workDir.getFileName());
                 RecordingFile.deleteRecursively(workDir);
                 return null;
             }
@@ -121,7 +122,7 @@ public final class Recovery {
             file.finish();
             return file.zipFile();
         } catch (Throwable t) {
-            logger.log(Level.WARNING, "修復錄製檔 " + workDir + " 失敗", t);
+            Log.severe("recover-failed", t, "file", workDir.getFileName());
             return null;
         }
     }

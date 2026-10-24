@@ -1,0 +1,250 @@
+# PMonitor 訊息設定（支援 & 顏色碼，{名稱} 會被替換成對應內容）
+# config-version 由插件管理，請勿修改
+config-version: 1
+
+# ===== 一般 =====
+no-permission: "&c你沒有權限執行這個操作。"
+unknown-command: "&c未知的指令，請輸入 /{label} help 查看可用指令。"
+unknown-player: "&c找不到玩家 {player}（必須曾經進過伺服器）。"
+usage: "&c用法：{usage}"
+reloaded: "&a已重新載入設定。"
+version: "&7目前版本：&f{version}"
+update-checking: "&7正在檢查更新…"
+update-available: "&e有新版本 &f{latest}&e（目前 {version}）：&b{url}"
+update-latest: "&a已是最新版本（{version}）。"
+update-none: "&7GitHub 尚無發布版本。"
+update-failed: "&c檢查更新失敗：{error}"
+
+# ===== 說明 =====
+help:
+  header: "&b===== PMonitor 錄製管理 ====="
+  open: " &f/{label} &7開啟主介面"
+  help: " &f/{label} help &7版本、檢查更新、指令說明"
+  start: " &f/{label} start <玩家> &7開始錄製（離線則下次進服錄製）"
+  stop: " &f/{label} stop <玩家> &7停止錄製或取消待命"
+  status: " &f/{label} status &7錄製中與待命的玩家"
+  list: " &f/{label} list [玩家] &7錄製檔列表"
+  download: " &f/{label} download <檔名> &7取得下載連結"
+  delete: " &f/{label} delete <檔名> &7刪除錄製檔"
+  reload: " &f/{label} reload &7重新載入設定並檢查更新"
+
+# ===== 錄製 =====
+record-started: "&a開始錄製 &f{player}&a。"
+record-waiting: "&7正在等待 {player} 進入遊戲後開始錄製…"
+record-armed: "&e{player} 目前離線，已設定為下次進服時開始錄製。"
+record-already: "&c{player} 已經在錄製中。"
+record-already-armed: "&e{player} 已經設定為下次進服錄製。"
+record-stopped: "&a已停止錄製 &f{player}&a，檔案儲存中…"
+record-cancel-waiting: "&e已取消 {player} 的等待中錄製。"
+record-saved: "&a{player} 的錄製檔已儲存：&f{file}"
+record-save-failed: "&c{player} 的錄製檔儲存失敗：{error}"
+record-disarmed: "&e已取消 {player} 的下次進服錄製。"
+record-not-recording: "&c{player} 沒有在錄製，也沒有設定下次進服錄製。"
+record-start-failed: "&c無法開始錄製 {player}，請查看主控台。"
+record-blocked-storage: "&c錄製檔總容量已達上限（{used} / {limit}），目前無法開始錄製。"
+record-unavailable: "&c錄製功能無法使用：{reason}"
+record-error: "&c{player} 的錄製發生錯誤，已停止並存檔：{error}"
+record-split: "&7{player} 的錄製已自動分段，開始第 {part} 段。"
+notify-start: "&7你的遊戲畫面正在被錄製。"
+notify-stop: "&7錄製已結束。"
+auto-on: "&a已開啟 {player} 的每次進服自動錄製。"
+auto-off: "&e已關閉 {player} 的每次進服自動錄製。"
+
+# ===== 狀態 =====
+status-header: "&b===== 錄製狀態 ====="
+status-recording-line: " &c● &f{player} &7錄製中 {duration} &8（{size}，第 {part} 段）"
+status-waiting-line: " &e◎ &f{player} &7等待進入遊戲"
+status-armed-line: " &e◎ &f{player} &7下次進服錄製"
+status-auto-line: " &a↻ &f{player} &7每次進服自動錄製"
+status-none: " &7目前沒有錄製中或待命的玩家。"
+status-storage: " &7容量：&f{used} &7（提醒 {warn}，上限 {stop}）"
+status-blocked: " &c容量已達上限，錄製已停止。"
+storage-no-limit: "不限制"
+
+# ===== 錄製檔 =====
+status:
+  recording: "&c錄製中"
+  completed: "&a完成"
+  interrupted: "&6中斷"
+list-header: "&b===== 錄製檔（{count}）====="
+list-header-player: "&b===== {player} 的錄製檔（{count}）====="
+list-line: " &f{file} &7{duration} &8{size} {status}"
+list-empty: " &7沒有錄製檔。"
+list-more: " &7…還有 {count} 個，請使用介面查看。"
+file-not-found: "&c找不到錄製檔 {file}。"
+delete-confirm: "&e確定要刪除 {file} 嗎？請在 30 秒內再輸入一次 /{label} delete {file} 確認。"
+deleted: "&a已刪除 {file}。"
+delete-failed: "&c刪除 {file} 失敗：{error}"
+delete-recording: "&c無法刪除錄製中的檔案。"
+download-disabled: "&c下載功能已關閉，請到伺服器的 plugins/PMonitor/recordings 取檔。"
+download-not-running: "&c下載伺服器沒有啟動，請查看主控台。"
+download-path: "&7檔案位置：&f{path}"
+download-recording: "&c錄製中的檔案無法下載，請先停止錄製。"
+download-link: "&a{file} 的下載連結（{minutes} 分鐘內有效）："
+download-click: "&b&n點此下載 {file}"
+
+# ===== 容量 =====
+storage-warn: "&e錄製檔總容量 {used}，已超過提醒值 {warn}（上限 {stop}）。"
+storage-stop: "&c錄製檔總容量 {used} 已達上限 {stop}，所有錄製已存檔並停止：{players}"
+storage-stop-reminder: "&c錄製檔總容量 {used} 已達上限 {stop}，目前無法錄製。請刪除舊的錄製檔。"
+storage-resumed: "&a錄製檔容量已降回上限以下，已恢復錄製：{players}"
+storage-unblocked: "&a錄製檔容量已降回上限以下，可以重新開始錄製。"
+
+# ===== 聊天室輸入 =====
+input-prompt-search: "&e請在聊天室輸入要搜尋的玩家名稱（輸入「{cancel}」取消，{seconds} 秒後逾時）"
+input-cancelled: "&7已取消。"
+input-timeout: "&7輸入逾時，已取消。"
+
+# ===== 介面 =====
+gui:
+  title:
+    main: "&8錄製管理"
+    player: "&8{player}"
+    files-all: "&8全部錄製檔"
+    files: "&8{player} 的錄製檔"
+    file: "&8{file}"
+    confirm: "&8確認刪除？"
+  prev: "&f上一頁"
+  next: "&f下一頁"
+  page-lore:
+    - "&7第 {page} / {pages} 頁"
+  close: "&c關閉"
+  back: "&f返回"
+  on: "&a開"
+  off: "&7關"
+  online-now: "&a線上"
+  offline: "&7離線"
+  empty-players: "&7沒有符合的玩家"
+  empty-files: "&7沒有錄製檔"
+  file-missing: "&c檔案已不存在"
+  status:
+    recording: "&c● 錄製中 {duration}"
+    waiting: "&e◎ 等待進入遊戲"
+    armed: "&e◎ 待命：下次進服錄製"
+    idle: "&7○ 未錄製"
+  player:
+    name-online: "&a{player}"
+    name-offline: "&f{player}"
+    lore:
+      - "{status}"
+      - "&7每次進服自動錄製：{auto}"
+      - "&7錄製檔：&f{files} 個"
+      - "&7最後上線：&f{last-seen}"
+      - ""
+      - "&e左鍵：管理"
+  filter:
+    name: "&b篩選：&f{filter}"
+    lore:
+      - "&7全部 → 線上 → 錄製中"
+      - "&e左鍵：切換"
+    all: "全部"
+    online: "線上"
+    recording: "錄製中"
+  search:
+    name: "&b搜尋玩家"
+    lore:
+      - "&e左鍵：在聊天室輸入名稱"
+    lore-active:
+      - "&7目前搜尋：&f{search}"
+      - "&e左鍵：清除搜尋"
+  storage:
+    warn-name: "&e⚠ 錄製檔容量提醒"
+    stop-name: "&c⚠ 容量已達上限，錄製已停止"
+    lore:
+      - "&7目前用量：&f{used}"
+      - "&7提醒值：&f{warn}"
+      - "&7上限：&f{stop}"
+  all-files:
+    name: "&b全部錄製檔"
+    lore:
+      - "&7數量：&f{count}"
+      - "&7總容量：&f{size}"
+      - ""
+      - "&e左鍵：查看"
+  player-info:
+    lore:
+      - "{status}"
+      - "&7狀態：{online}"
+      - "&7本次錄製時長：&f{duration}"
+      - "&7本次錄製大小：&f{size}"
+  start:
+    name: "&a開始錄製"
+    lore:
+      - "&7立即開始錄製這位玩家"
+      - ""
+      - "&e左鍵：開始"
+  stop:
+    name: "&c停止錄製"
+    lore:
+      - "&7已錄製 &f{duration}"
+      - ""
+      - "&e左鍵：停止並存檔"
+  waiting:
+    name: "&e等待進入遊戲…"
+    lore:
+      - "&7玩家完全進入遊戲後就會開始錄製"
+      - ""
+      - "&e左鍵：取消"
+  arm:
+    name: "&e下次進服錄製：{state}"
+    lore:
+      - "&7玩家目前離線"
+      - "&7開啟後，下次進服時自動開始錄製（只錄一次）"
+      - ""
+      - "&e左鍵：切換"
+  auto:
+    name: "&b每次進服自動錄製：{state}"
+    lore:
+      - "&7開啟後，這位玩家每次進服都會自動開始錄製"
+      - ""
+      - "&e左鍵：切換"
+  player-files:
+    name: "&f錄製檔"
+    lore:
+      - "&7數量：&f{count}"
+      - ""
+      - "&e左鍵：查看"
+  file:
+    name: "&f{time}"
+    lore:
+      - "&7玩家：&f{player}"
+      - "&7長度：&f{duration}"
+      - "&7大小：&f{size}"
+      - "&7伺服器：&f{world}"
+      - "&7MC 版本：&f{version}"
+      - "&7狀態：{status}"
+      - "&7分段：&f第 {part} 段"
+      - "&8{file}"
+  download:
+    name: "&a取得下載連結"
+    lore:
+      - "&7在聊天室顯示可點擊的下載連結"
+      - ""
+      - "&e左鍵：取得連結"
+  location:
+    name: "&f檔案位置"
+    lore:
+      - "&7下載功能已關閉，請到伺服器後台取檔："
+      - "&f{path}"
+      - ""
+      - "&e左鍵：在聊天室顯示路徑"
+  download-locked:
+    name: "&7錄製中，無法下載"
+    lore:
+      - "&7請先停止錄製"
+  delete:
+    name: "&c刪除"
+    lore:
+      - "&7永久刪除這個錄製檔"
+      - ""
+      - "&e左鍵：刪除（需再次確認）"
+  delete-locked:
+    name: "&7錄製中，無法刪除"
+    lore:
+      - "&7請先停止錄製"
+  confirm:
+    yes: "&c確認刪除"
+    yes-lore:
+      - "&7{file}"
+      - "&c刪除後無法復原"
+    no: "&a取消"
