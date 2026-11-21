@@ -87,7 +87,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.11-R0.1-SNAPSHOT</version>
+            <version>26.3.build.249-stable</version>
             <scope>provided</scope>
         </dependency>
         <!-- 伺服器內建的 Netty，只用來攔截封包（不打包進 jar） -->
@@ -99,9 +99,9 @@
         </dependency>
         <!-- 共用 HTTP 端口（下載錄製檔用；選用，softdepend） -->
         <dependency>
-            <groupId>com.github.clre20</groupId>
+            <groupId>clre20</groupId>
             <artifactId>HttpHub</artifactId>
-            <version>v1.0.0</version>
+            <version>1.0.1</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

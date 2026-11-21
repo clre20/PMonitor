@@ -128,7 +128,11 @@ public final class PMonitor extends JavaPlugin implements Listener {
         Bukkit.getScheduler().runTaskTimer(this, this.storage::cleanupOld, 20L * 3600, 20L * 3600);
         Bukkit.getScheduler().runTaskTimer(this, this.menus::refreshOpen, 20L, 20L);
 
-        this.updateNotifier.checkOnStartup();
+        if (getServer().getPluginManager().isPluginEnabled("HttpHub") && clre20.httpHub.api.HttpHubAPI.isAvailable()) {
+            clre20.httpHub.api.HttpHubAPI.registerUpdateCheck(this, "clre20/PMonitor", getPluginMeta().getVersion(), "pmonitor.version", null);
+        } else {
+            this.updateNotifier.checkOnStartup();
+        }
         Log.info("enabled", "version", getPluginMeta().getVersion(),
             "hub", this.messages.plain(Downloads.hubInstalled() ? "console.hub-found" : "console.hub-missing"));
     }

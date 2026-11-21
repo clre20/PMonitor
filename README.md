@@ -234,3 +234,43 @@ Main command `/pmonitor`, alias `/cpm`. All permissions default to OP only.
 - If the server runs below 20 TPS, the replay is shorter than real time
 - Bedrock players appear with the default skin in replays
 - Flashback's free camera only jumps to the player on dimension changes; to keep the camera on the player through same-world teleports (e.g. RTP), press "Spectate" in Flashback's player list
+---
+
+# PMonitor (English)
+
+PMonitor records all packet and visual data received by designated players directly on the server side, saving them as replay files compatible with [Flashback](https://modrinth.com/mod/flashback). Recorded players do not need any client-side mods and will not notice the recording. Admins can load the replay in Flashback on their own PC to investigate incidents, slow down playback, use free camera angles, or export video.
+
+> **Update Checker Notice**: When [HttpHub](https://github.com/clre20/HttpHub) is installed on the server, update checking and admin login alerts are handled centrally by HttpHub via virtual threads, eliminating redundant threads and network connections.
+
+## Features
+
+- **Complete Replay Recording**
+  - Player actions, held items, equipment, block breaks, chat, entities, armor stands, scoreboards, titles, BossBars, Tab list, and effects.
+  - Seamless recording across dimension switches, respawns, and Multiverse world teleports.
+  - Snapshots every 5 minutes for rapid seeking in Flashback.
+- **Flexible Triggering**
+  - Start recording online players instantly without reconnecting.
+  - Schedule offline players to record on their next join (single or recurring).
+  - Multiple players can be recorded simultaneously into separate files.
+- **Interactive Chest GUI (`/cpm`)**
+  - Search, filter, start/stop recording, inspect replays with length, size, and status.
+- **Safe Persistence & Storage Quotas**
+  - Files over 2 hours or 1 GB automatically split without interrupting recording.
+  - Graceful server shutdown waits for active replays to finish writing.
+  - Configurable soft/hard disk storage limits and automatic cleanup of recordings older than retention days (default 30 days).
+- **HttpHub Integration**
+  - Generates secure temporary download links (`/pmonitor/d/...`) via [HttpHub](https://github.com/clre20/HttpHub) without opening extra ports.
+
+## Requirements
+
+- Paper 26.3 (Stable) or higher (Java 25).
+- Optional: [HttpHub](https://github.com/clre20/HttpHub) for download links and centralized update checking.
+
+## Commands & Permissions
+
+| Command | Description | Permission | Default |
+|---|---|---|---|
+| `/cpm` | Open management GUI | `pmonitor.use` | OP |
+| `/cpm help` | Command help | `pmonitor.help` | OP |
+| `/cpm version` | Version and update check | `pmonitor.version` | OP |
+| `/cpm reload` | Reload configuration | `pmonitor.reload` | OP |
