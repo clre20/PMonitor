@@ -29,17 +29,6 @@ public final class UpdateChecker {
     }
 
     private final String current;
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
-        Thread t = new Thread(r, "PMonitor-UpdateChecker");
-        t.setDaemon(true);
-        return t;
-    });
-    private final HttpClient client = HttpClient.newBuilder()
-        .connectTimeout(Duration.ofSeconds(10))
-        .followRedirects(HttpClient.Redirect.NORMAL)
-        .executor(this.executor)
-        .build();
-
     private CompletableFuture<Result> cached;
     private long cachedAt;
 
@@ -59,25 +48,34 @@ public final class UpdateChecker {
     }
 
     public void shutdown() {
-        this.executor.shutdownNow();
+        // 無常駐線程，不需關閉
     }
 
-    private CompletableFuture<Result> fetch() {
-        HttpRequest request = HttpRequest.newBuilder(URI.create("https://api.github.com/repos/" + REPO + "/releases/latest"))
-            .timeout(Duration.ofSeconds(10))
-            .header("Accept", "application/vnd.github+json")
-            .header("User-Agent", "PMonitor/" + this.current)
-            .GET()
-            .build();
-        return this.client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
-            .thenApply(res -> {
-                if (res.statusCode() == 404) {
+        private CompletableFuture<Result> fetch() {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                java.net.URI uri = java.net.URI.create("https://api.github.com/repos/" + REPO + "/releases/latest");
+                java.net.HttpURLConnection conn = (java.net.HttpURLConnection) uri.toURL().openConnection();
+                conn.setConnectTimeout(10000);
+                conn.setReadTimeout(10000);
+                conn.setRequestProperty("Accept", "application/vnd.github+json");
+                conn.setRequestProperty("User-Agent", REPO + "/" + this.current);
+                int code = conn.getResponseCode();
+                if (code == 404) {
+                    conn.disconnect();
                     return failed("version.reason-no-release", "");
                 }
-                if (res.statusCode() != 200) {
-                    return failed("version.reason-http", String.valueOf(res.statusCode()));
+                if (code != 200) {
+                    conn.disconnect();
+                    return failed("version.reason-http", String.valueOf(code));
                 }
-                JsonObject json = JsonParser.parseString(res.body()).getAsJsonObject();
+                String body;
+                try (java.io.InputStream in = conn.getInputStream()) {
+                    body = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+                } finally {
+                    conn.disconnect();
+                }
+                JsonObject json = JsonParser.parseString(body).getAsJsonObject();
                 if (!json.has("tag_name")) {
                     return failed("version.reason-no-tag", "");
                 }
@@ -85,8 +83,10 @@ public final class UpdateChecker {
                 int cmp = compare(latest, strip(this.current));
                 Status status = cmp > 0 ? Status.NEWER : cmp < 0 ? Status.DEV : Status.LATEST;
                 return new Result(status, this.current, latest, null, null);
-            })
-            .exceptionally(t -> failed("version.reason-offline", ""));
+            } catch (Exception t) {
+                return failed("version.reason-offline", "");
+            }
+        });
     }
 
     private Result failed(String key, String arg) {
